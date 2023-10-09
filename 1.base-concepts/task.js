@@ -1,26 +1,21 @@
 "use strict"
+
 function solveEquation(a, b, c) {
- let arr = [];
- const d = Math.pow(b, 2) - 4 * a * c;
- if (d < 0) {
-   arr = [];
- } else if (d == 0) {
-   arr = [-b / (2 * a)];
- } else if (d > 0) {
-   arr = [(-b + Math.sqrt(d)) / (2 * a), (-b - Math.sqrt(d) )/(2*a)]; 
- }
- return arr;
+  let arr = [];
+  const d = Math.pow(b, 2) - 4 * a * c;
+  if (d > 0) {
+    arr[0] = (-b + Math.sqrt(d)) / (2 * a);
+    arr[1] = (-b - Math.sqrt(d)) / (2 * a);
+  } else if (d === 0) {
+    arr[0] = -b / (2 * a);
+  }
+  return arr;
 }
 
 function calculateTotalMortgage(percent, contribution, amount, countMonths) {
-  if (!isNaN(precent) && !isNaN(contribution) && !isNaN(amount)) {
-    const perMonth = percent / 100 / 12;
-    const bodyCredit = amount - contribution;
-    const monthly = bodyCredit * (perMonth + (perMonth / (((1 + perMonth) ** countMonths) - 1)));
-    const totalSum = parseFloat((monthly * countMonths).toFixed(2));
-    return totalSum;
-  }
-return false;
-
-
+  let monthPercent =  percent / 100 / 12;
+  let loanBody = amount - contribution;
+  let monthPayment = loanBody * (monthPercent + (monthPercent / (((1 + monthPercent) ** countMonths) - 1)));
+  let totalPayment = (monthPayment * countMonths).toFixed(2);
+  return Number(totalPayment);
 }
