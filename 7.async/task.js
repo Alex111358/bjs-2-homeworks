@@ -1,69 +1,66 @@
 class AlarmClock {
-	constructor() {
-		this.alarmCollection = [];
-		this.timerId = null;
-
-	}
-
-	addClock(time, callback, id) {
-		if (!id) {
-			throw new Error('Парметр id не передан')
-		}
-
-		if (this.alarmCollection.some(alarm => alarm.id === id)) {
-			console.error('Будильник с таким id уже существует');
-			return;
-		}
-
-		this.alarmCollection.push({ time: time, callback: callback, id: id })
-	}
-
-	removeClock(id) {
-		let arrBefore = this.alarmCollection.length;
-		let arrAfter = this.alarmCollection.length;
-		this.alarmCollection = this.alarmCollection.filter(alarm => alarm.id !== id);
-		return arrBefore > arrAfter
-
-	}
-
-	getCurrentFormattedTime() {
-
-		return new Date().toLocaleTimeString("ru-Ru", {
-			hour: "2-digit",
-			minute: "2-digit",
-		})
-	}
-
-	start() {
-
-		const checkClock = (alarm) => {
-			if (alarm.time === this.getCurrentFormattedTime()) {
-				alarm.callback();
-			}
-		};
-
-		if (!this.timerId) {
-			this.timerId = setInterval(() => {
-				this.alarmCollection.forEach(alarm => checkClock(alarm));
-			}, 1000);
-		}
-	}
-
-	stop() {
-		if (!this.timerId) {
-			clearInterval(this.timerId);
-			this.timerId = null;
-		}
-	}
-
-	printAlarms() {
-		this.alarmCollection.forEach(alarm => {
-			console.log(`Будильник №${alarm.id} заведен на ${alarm.time}`);
-		})
-	}
-
-	clearAlarms() {
-		this.stop();
-		this.alarmCollection = [];
-	}
-}	
+    constructor() {
+      this.alarmCollection = [];
+      this.intervalId = null;
+    }
+  
+    addClock(time, callback) {
+      if (!time || !callback) {
+        throw new Error("Отсутствуют обязательные аргументы");
+      }
+  
+      if (this.alarmCollection.some((alarm) => alarm.time === time)) {
+        console.warn("Уже присутствует звонок на это же время");
+      }
+  
+      this.alarmCollection.push({
+        time,
+        callback,
+        canCall: true,
+      });
+    }
+  
+    removeClock(time) {
+      this.alarmCollection = this.alarmCollection.filter(
+        (alarm) => alarm.time !== time
+      );
+    }
+  
+    getCurrentFormattedTime() {
+      const now = new Date();
+      return now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+  
+    start() {
+      if (this.intervalId) {
+        return;
+      }
+  
+      this.intervalId = setInterval(() => {
+        const currentTime = this.getCurrentFormattedTime();
+  
+        this.alarmCollection.forEach((alarm) => {
+          if (alarm.time === currentTime && alarm.canCall) {
+            alarm.canCall = false;
+            alarm.callback();
+          }
+        });
+      }, 1000);
+    }
+  
+    stop() {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+  
+    resetAllCalls() {
+      this.alarmCollection.forEach((alarm) => {
+        alarm.canCall = true;
+      });
+    }
+  
+    clearAlarms() {
+      this.stop();
+      this.alarmCollection = [];
+    }
+  }
